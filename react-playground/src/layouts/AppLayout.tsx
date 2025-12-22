@@ -1,9 +1,21 @@
 import { Outlet } from "react-router-dom";
 import AppHeader from "./AppHeader";
+import { useTheme } from "@/hooks/useTheme";
+import clsx from "clsx";
 
 export default function AppLayout() {
+  const { theme } = useTheme();
+  console.log(theme);
+  //bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100
+  //<div className="min-h-dvh bg-slate-50 text-slate-900 ">
   return (
-    <div className="min-h-dvh bg-slate-50 text-slate-900">
+    <div
+      className={clsx(
+        "min-h-dvh",
+        theme === "dark" && "dark",
+        "bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+      )}
+    >
       <AppHeader />
 
       {/* Main content */}

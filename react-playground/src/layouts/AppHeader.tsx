@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 type NavItem = {
   to: string;
@@ -14,6 +15,8 @@ function cx(...classes: Array<string | false | undefined | null>) {
 export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -32,7 +35,7 @@ export default function AppHeader() {
   }, [location.pathname, navItems]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur  dark:bg-gray-800 px-4 py-2">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -84,13 +87,15 @@ export default function AppHeader() {
           <button
             type="button"
             className="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 md:inline-flex"
-            onClick={() =>
-              alert(
-                "여기에 전역 Search, ThemeToggle, Profile 같은 걸 얹으면 됨"
-              )
-            }
+            // onClick={() =>
+            //   alert(
+            //     "여기에 전역 Search, ThemeToggle, Profile 같은 걸 얹으면 됨"
+            //   )
+            // }
+            onClick={toggleTheme}
           >
-            Quick Action
+            {/* Quick Action */}
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
           </button>
 
           {/* Mobile menu button */}
