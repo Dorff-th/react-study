@@ -10,6 +10,7 @@ export interface UIContextValue {
 
   showToast: (message: string, type?: ToastType) => void;
   clearToast: () => void;
+  toast: { message: string } | null;
 }
 
 export const UIContext = createContext<UIContextValue | null>(null);

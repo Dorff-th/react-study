@@ -1,4 +1,8 @@
+import { useUI } from "@/hooks/useUI";
+
 export default function Toast() {
+  const { toast } = useUI();
+  if (!toast) return null;
   return (
     <div
       className="
@@ -8,7 +12,7 @@ export default function Toast() {
       bg-slate-800 text-white
     "
     >
-      Toast Message
+      {toast?.message}
     </div>
   );
 }

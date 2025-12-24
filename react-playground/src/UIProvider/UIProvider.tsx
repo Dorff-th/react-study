@@ -10,8 +10,15 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   const hideLoading = () => setIsLoading(false);
 
   // 2️⃣ toast state
+  const DURATION = 3000;
   const [toast, setToast] = useState<{ message: string } | null>(null);
-  const showToast = (message: string) => setToast({ message });
+  const showToast = (message: string) => {
+    setToast({ message });
+    setTimeout(() => {
+      clearToast();
+    }, DURATION);
+  };
+
   const clearToast = () => setToast(null);
 
   const value = {
@@ -20,6 +27,7 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
     hideLoading,
     showToast,
     clearToast,
+    toast,
   };
 
   return (

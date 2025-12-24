@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TodoList from "@/components/todo/TodoList";
 import TodoInput from "@/components/todo/TodoInput";
 import { type Todo } from "@/types/todo";
 import { getTodayDateString } from "@/utils/dateUtils";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { useToggleItem } from "@/hooks/useToggleItem";
+import { useUI } from "@/hooks/useUI";
 
 const TodoListPage = () => {
+  const { showToast } = useUI();
+
+  useEffect(() => {
+    showToast("할일 목록 페이지 로딩중!");
+  }, []);
+
   /* ==== state 영역 start ==== */
 
   // 기본 선택 날짜 = 오늘
