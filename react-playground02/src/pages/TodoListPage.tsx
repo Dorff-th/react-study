@@ -6,36 +6,42 @@ import { getTodayDateString } from "@/utils/dateUtils";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { useToggleItem } from "@/hooks/useToggleItem";
 import { useUI } from "@/hooks/useUI";
-
 import { createAddTodoAction } from "@/actions/addTodoAction";
 import { useAction } from "@/contexts/ActionContext";
+import { ActionLogModal } from "@/components/todo/ActionLogModal";
 
 const TodoListPage = () => {
-  const { showToast } = useUI();
-
-  useEffect(() => {
-    showToast("할일 목록 페이지 로딩중!");
-  }, []);
-
-  /* ==== state 영역 start ==== */
+  /* ==== state 영역  ==== */
 
   // 기본 선택 날짜 = 오늘
   const [selectedDate, setSelectedDate] = useState<string>(() =>
     getTodayDateString()
   );
 
+  //할일 추가 input  hide/show state
   const [isAdding, setIsAdding] = useState(false);
 
+  //ActionLogPanel hide/show state
+  const [isLogOpen, setIsLogOpen] = useState(false);
+
+  /* ==== hook 영역 ==== */
   const [todos, setTodos] = useLocalStorageState<Record<string, Todo[]>>(
     "todos",
     {}
   );
 
+  const { showToast } = useUI();
   const toggleTodo = useToggleItem(todos, setTodos, selectedDate);
+  const { dispatch, undoLastAction, actionLogs } = useAction();
 
   /* ==== Derived variables / memoized values === */
   // 선택된 날짜의 todo 리스트 계산 (state 아님)
   const todoListForSelectedDate = todos[selectedDate] || [];
+
+  /* ==== useEffect 영역 start ==== */
+  useEffect(() => {
+    showToast("할일 목록 페이지 로딩중!");
+  }, []);
 
   /* ==== 이벤트 핸들러 및 내부 함수 영역 === */
   // 날짜 선택 이벤트 핸들러
@@ -44,8 +50,6 @@ const TodoListPage = () => {
   ) => {
     setSelectedDate(event.target.value);
   };
-
-  const { dispatch, undoLastAction } = useAction();
 
   const handleAddTodoClick = (title: string, selectedDate: string) => {
     if (!title.trim()) return;
@@ -91,7 +95,16 @@ const TodoListPage = () => {
     const updated = { ...todos, [selectedDate]: updatedList };
 
     setTodos(updated);
-    //localStorage.setItem("todos", JSON.stringify(updated));
+  };
+
+  //action log ui open/close toggle handler
+  const handleToggleLog = () => {
+    setIsLogOpen((prev) => !prev);
+  };
+
+  //action log log ui close handler
+  const handleCloseLog = () => {
+    setIsLogOpen(false);
   };
 
   return (
@@ -105,6 +118,7 @@ const TodoListPage = () => {
             Manage your tasks efficiently and stay organized!
           </p>
         </header>
+
         <main className="mt-8 w-full max-w-md bg-white rounded-lg shadow-md p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-800">
             Your Todos
@@ -137,7 +151,7 @@ const TodoListPage = () => {
           >
             {!isAdding ? "Add" : "Cancel"}
           </button>
-          {!isAdding ? (
+          {actionLogs.length > 0 ? (
             <button
               onClick={handleUndoClick}
               className="px-6 py-2 rounded-lg font-semibold transition bg-orange-400 hover:bg-orange-500"
@@ -148,6 +162,16 @@ const TodoListPage = () => {
             ""
           )}
         </div>
+        <div className="mb-4 text-2xl font-semibold text-gray-800 px-6 py-2 rounded-lg  transition bg-purple-400 hover:bg-purple-500">
+          <button
+            onClick={handleToggleLog}
+            className="mb-4 px-6 py-2 text-lg font-semibold rounded-lg transition
+             bg-purple-400 hover:bg-purple-500 text-white"
+          >
+            {isLogOpen ? "Hide Action Log" : "Show Action Log"}
+          </button>
+        </div>
+        {isLogOpen && <ActionLogModal onClose={handleCloseLog} />}
       </div>
     </>
   );

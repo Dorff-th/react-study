@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { type Action } from "../types/action";
+import { type ActionLog } from "../types/ActionLog";
+import { formatNow } from "@/utils/formatNow";
 
 interface ActionContextValue {
   dispatch: (action: Action) => void;
   undoLastAction: () => void;
+  actionLogs: ActionLog[];
 }
 
 const ActionContext = createContext<ActionContextValue | null>(null);
@@ -12,21 +15,41 @@ export function ActionProvider({ children }: { children: React.ReactNode }) {
   const [pendingAction, setPendingAction] = useState<Action | null>(null);
   const [pendingUndo, setPendingUndo] = useState<Action | null>(null);
 
-  const [actionLog, setActionLog] = useState<Action[]>([]);
+  const [action, setAction] = useState<Action[]>([]);
+
+  const [actionLogs, setActionLogs] = useState<ActionLog[]>([]);
 
   const dispatch = (action: Action) => {
     setPendingAction(action);
+    setActionLogs((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        type: "ADD",
+        title: action.payload.title,
+        timestamp: formatNow(),
+      },
+    ]);
   };
 
   const undoLastAction = () => {
-    setPendingUndo(actionLog[actionLog.length - 1] ?? null);
+    setPendingUndo(action[action.length - 1] ?? null);
+    setActionLogs((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        type: "UNDO",
+        title: action[action.length - 1]?.payload.title ?? "",
+        timestamp: formatNow(),
+      },
+    ]);
   };
 
   useEffect(() => {
     if (!pendingAction) return;
 
     pendingAction.do();
-    setActionLog((prev) => [...prev, pendingAction]);
+    setAction((prev) => [...prev, pendingAction]);
     setPendingAction(null);
   }, [pendingAction]);
 
@@ -34,12 +57,12 @@ export function ActionProvider({ children }: { children: React.ReactNode }) {
     if (!pendingUndo) return;
 
     pendingUndo.undo(); // ✅ updater 밖
-    setActionLog((prev) => prev.slice(0, -1));
+    setAction((prev) => prev.slice(0, -1));
     setPendingUndo(null);
   }, [pendingUndo]);
 
   return (
-    <ActionContext.Provider value={{ dispatch, undoLastAction }}>
+    <ActionContext.Provider value={{ dispatch, undoLastAction, actionLogs }}>
       {children}
     </ActionContext.Provider>
   );
