@@ -1,39 +1,52 @@
-import { useState } from "react";
+// UIProvider.tsx
+import { useEffect, useReducer } from "react";
 import { UIContext } from "@/contexts/UIContext";
+import { uiReducer, initialUIState } from "./uiReducer";
 import LoadingOverlay from "@/components/ui/LoadingOverlay";
 import Toast from "@/components/ui/Toast";
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
-  // 1️⃣ loading state
-  const [isLoading, setIsLoading] = useState(false);
-  const showLoading = () => setIsLoading(true);
-  const hideLoading = () => setIsLoading(false);
+  const [state, dispatch] = useReducer(uiReducer, initialUIState);
 
-  // 2️⃣ toast state
-  const DURATION = 3000;
-  const [toast, setToast] = useState<{ message: string } | null>(null);
-  const showToast = (message: string) => {
-    setToast({ message });
-    setTimeout(() => {
-      clearToast();
-    }, DURATION);
+  const showLoading = () => dispatch({ type: "SHOW_LOADING" });
+  const hideLoading = () => dispatch({ type: "HIDE_LOADING" });
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    dispatch({
+      type: "SHOW_TOAST",
+      payload: { message, toastType: type },
+    });
   };
 
-  const clearToast = () => setToast(null);
+  const clearToast = () => dispatch({ type: "CLEAR_TOAST" });
 
-  const value = {
-    isLoading,
-    showLoading,
-    hideLoading,
-    showToast,
-    clearToast,
-    toast,
-  };
+  // ⭐ 자동 사라짐 처리
+  useEffect(() => {
+    if (!state.toast) return;
+
+    const timer = setTimeout(() => {
+      dispatch({ type: "CLEAR_TOAST" });
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [state.toast]);
 
   return (
-    <UIContext.Provider value={value}>
+    <UIContext.Provider
+      value={{
+        ...state,
+        showLoading,
+        hideLoading,
+        showToast,
+        clearToast,
+      }}
+    >
       {children}
-      {/* 👇 UI 전용 컴포넌트는 여기서 렌더 */}
       <LoadingOverlay />
       <Toast />
     </UIContext.Provider>

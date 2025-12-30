@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { type Action } from "../types/action";
-import { type ActionLog } from "../types/ActionLog";
+import { type ActionLog } from "../types/actionLog";
 import { formatNow } from "@/utils/formatNow";
 
 interface ActionContextValue {

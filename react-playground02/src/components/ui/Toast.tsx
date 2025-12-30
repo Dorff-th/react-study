@@ -1,7 +1,8 @@
 import { useUI } from "@/hooks/useUI";
 
 export default function Toast() {
-  const { toast } = useUI();
+  const { toast, clearToast } = useUI();
+
   if (!toast) return null;
   return (
     <div
@@ -11,6 +12,7 @@ export default function Toast() {
       shadow-lg
       bg-slate-800 text-white
     "
+      onClick={clearToast}
     >
       {toast?.message}
     </div>

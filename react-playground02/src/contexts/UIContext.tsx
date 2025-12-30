@@ -1,16 +1,11 @@
 import { createContext } from "react";
+import { type UIState } from "@/UIProvider/UIState";
 
-export type ToastType = "success" | "error" | "info";
-
-export interface UIContextValue {
-  isLoading: boolean;
-
+export interface UIContextValue extends UIState {
   showLoading: () => void;
   hideLoading: () => void;
-
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
   clearToast: () => void;
-  toast: { message: string } | null;
 }
 
 export const UIContext = createContext<UIContextValue | null>(null);
